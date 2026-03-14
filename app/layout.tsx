@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SelectedPlacesProvider } from "@/app/context/SelectedPlacesContext";
+import NavBar from "@/app/components/NavBar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,39 +29,22 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
-        <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md text-primary shadow-md">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between">
-              <div className="flex items-center">
-                <a href="/" className="text-lg font-bold">
-                  Travel Planner
-                </a>
+        <SelectedPlacesProvider>
+          <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md text-primary shadow-md">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="flex h-16 items-center justify-between">
+                <div className="flex items-center">
+                  <a href="/" className="text-lg font-bold">
+                    Travel Planner
+                  </a>
+                </div>
+                <NavBar />
               </div>
-              <nav className="flex space-x-4">
-                <a
-                  href="/"
-                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/80"
-                >
-                  Home
-                </a>
-                <a
-                  href="/planner"
-                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/80"
-                >
-                  Planner
-                </a>
-                <a
-                  href="/local-guide"
-                  className="px-3 py-2 rounded-md text-sm font-medium hover:bg-primary/80"
-                >
-                  Local Guide
-                </a>
-              </nav>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <SelectedPlacesProvider>{children}</SelectedPlacesProvider>
+          {children}
+        </SelectedPlacesProvider>
       </body>
     </html>
   );
