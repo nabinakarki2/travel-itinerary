@@ -1,12 +1,8 @@
 "use server";
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import type { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import { generateNovaChatReply } from "@/lib/nova";
 import { searchPlaces, PlaceResult } from "./search";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string);
-const chatModel = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash-lite-preview-09-2025",
-});
 
 export type ChatMessage = {
   role: "user" | "assistant";
@@ -126,15 +122,23 @@ export async function chatReply(
     prompt = buildGeneralPrompt(message);
   }
 
-  // Build chat history for multi-turn context (last 6 messages)
-  const chatHistory = history.slice(-6).map((m) => ({
-    role: m.role === "assistant" ? ("model" as const) : ("user" as const),
-    parts: [{ text: m.content }],
-  }));
+  const messages: ChatCompletionMessageParam[] = [
+    {
+      role: "system",
+      content:
+        "You are a helpful Nepal domestic travel assistant. Always respond in markdown with clear headings and concise bullet points when useful.",
+    },
+    ...history.slice(-6).map((m) => ({
+      role: m.role,
+      content: m.content,
+    })),
+    {
+      role: "user",
+      content: prompt,
+    },
+  ];
 
-  const chat = chatModel.startChat({ history: chatHistory });
-  const result = await chat.sendMessage(prompt);
-  const reply = result.response.text();
+  const reply = await generateNovaChatReply(messages);
 
   return { reply, sources, usedRAG: usedRAG && sources.length > 0 };
 }

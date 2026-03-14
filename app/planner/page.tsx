@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useRef, useState, useEffect } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Compass,
@@ -11,7 +11,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
-import { chatReply, ChatMessage as AIChatMessage } from "@/actions/chat";
 import type { PlaceResult } from "@/actions/search";
 import { getPlacesByIds, PlaceDetail } from "@/actions/getPlacesByIds";
 import { useSelectedPlaces } from "@/app/context/SelectedPlacesContext";
@@ -22,6 +21,12 @@ type ChatMessage = {
   text: string;
   loading?: boolean;
 };
+
+type StreamPayload =
+  | { type: "meta"; sources: PlaceResult[]; usedRAG: boolean }
+  | { type: "chunk"; text: string }
+  | { type: "done" }
+  | { type: "error"; message: string };
 
 const quickPrompts = [
   "Start from Butwal and suggest 3 temples",
@@ -38,9 +43,9 @@ export default function PlannerPage() {
   const [placeDetails, setPlaceDetails] = useState<Map<number, PlaceDetail>>(
     new Map(),
   );
+
   const { selectedPlaces, addPlace, removePlace } = useSelectedPlaces();
   const router = useRouter();
-
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const hasStarted = messages.length > 0;
@@ -72,6 +77,7 @@ export default function PlannerPage() {
       role: "user",
       text: trimmed,
     };
+
     const loadingMsg: ChatMessage = {
       id: Date.now() + 1,
       role: "assistant",
@@ -84,34 +90,89 @@ export default function PlannerPage() {
     setIsLoading(true);
 
     try {
-      // Build history from current messages (exclude the loading placeholder)
-      const history: AIChatMessage[] = messages.map((m) => ({
-        role: m.role,
-        content: m.text,
-      }));
+      const history = messages
+        .filter((m) => !m.loading)
+        .map((m) => ({ role: m.role, content: m.text }));
 
-      const result = await chatReply(trimmed, history);
+      const response = await fetch("/api/chat/stream", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message: trimmed, history }),
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error("Failed to stream chat response.");
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let reply = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+
+          const payload = JSON.parse(line) as StreamPayload;
+
+          if (payload.type === "meta") {
+            setSources(payload.sources);
+            const ids = payload.sources
+              .map((s) => s.place_id)
+              .filter(Boolean) as number[];
+
+            if (ids.length > 0) {
+              const details = await getPlacesByIds(ids);
+              setPlaceDetails(new Map(details.map((d) => [d.id, d])));
+            } else {
+              setPlaceDetails(new Map());
+            }
+          }
+
+          if (payload.type === "chunk") {
+            reply += payload.text;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === loadingMsg.id
+                  ? { ...m, text: reply, loading: true }
+                  : m,
+              ),
+            );
+          }
+
+          if (payload.type === "error") {
+            throw new Error(payload.message || "Streaming failed.");
+          }
+
+          if (payload.type === "done") {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === loadingMsg.id
+                  ? { ...m, text: reply, loading: false }
+                  : m,
+              ),
+            );
+          }
+        }
+      }
 
       setMessages((prev) =>
         prev.map((m) =>
-          m.id === loadingMsg.id
-            ? { ...m, text: result.reply, loading: false }
-            : m,
+          m.id === loadingMsg.id ? { ...m, text: reply, loading: false } : m,
         ),
       );
-
-      if (result.sources.length > 0) {
-        setSources(result.sources);
-        const ids = result.sources
-          .map((s) => s.place_id)
-          .filter(Boolean) as number[];
-        if (ids.length > 0) {
-          const details = await getPlacesByIds(ids);
-          const map = new Map(details.map((d) => [d.id, d]));
-          setPlaceDetails(map);
-        }
-      }
-    } catch (err) {
+    } catch {
+      setSources([]);
+      setPlaceDetails(new Map());
       setMessages((prev) =>
         prev.map((m) =>
           m.id === loadingMsg.id
@@ -186,14 +247,18 @@ export default function PlannerPage() {
                         : "rounded-bl-sm border border-slate-200/80 bg-white/90 text-slate-800 shadow-sm"
                     }`}
                   >
-                    {message.loading ? (
-                      <span className="flex items-center gap-2 text-slate-400">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Thinking...
-                      </span>
-                    ) : message.role === "assistant" ? (
+                    {message.role === "assistant" ? (
                       <div className="prose prose-sm max-w-none text-slate-800 [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_p]:my-1 [&_ul]:my-1 [&_ol]:my-1 [&_li]:my-0 [&_strong]:font-semibold [&_code]:bg-slate-100 [&_code]:px-1 [&_code]:rounded [&_a]:text-primary [&_a]:underline">
-                        <ReactMarkdown>{message.text}</ReactMarkdown>
+                        <ReactMarkdown>
+                          {message.text ||
+                            (message.loading ? "Thinking..." : "")}
+                        </ReactMarkdown>
+                        {message.loading && (
+                          <span className="mt-2 inline-flex items-center gap-2 text-xs text-slate-400">
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            Streaming...
+                          </span>
+                        )}
                       </div>
                     ) : (
                       <span className="whitespace-pre-wrap">
