@@ -36,6 +36,8 @@ export default function PlannerPage() {
   const [placeDetails, setPlaceDetails] = useState<Map<number, PlaceDetail>>(
     new Map(),
   );
+  const [selectedPlaces, setSelectedPlaces] = useState<PlaceResult[]>([]);
+
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const hasStarted = messages.length > 0;
@@ -128,13 +130,23 @@ export default function PlannerPage() {
     submitMessage(input);
   }
 
+  function addPlace(place: PlaceResult) {
+    setSelectedPlaces((prev) =>
+      prev.some((p) => p.place_id === place.place_id) ? prev : [...prev, place],
+    );
+  }
+
+  function removePlace(placeId: number) {
+    setSelectedPlaces((prev) => prev.filter((p) => p.place_id !== placeId));
+  }
+
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] bg-[linear-gradient(120deg,rgba(0,128,62,0.06),rgba(255,255,255,1),rgba(0,128,62,0.04))]">
-      <div className="mx-auto flex w-full max-w-7xl gap-5 px-4 py-6 md:px-6">
+    <main className="relative h-[calc(100vh-4rem)] overflow-hidden bg-[linear-gradient(120deg,rgba(0,128,62,0.06),rgba(255,255,255,1),rgba(0,128,62,0.04))]">
+      <div className="mx-auto flex h-full w-full max-w-7xl gap-5 overflow-hidden px-4 py-4 md:px-6 md:py-5">
         <section
-          className={`relative flex min-h-[calc(100vh-7rem)] h-[80vh] flex-1 flex-col overflow-hidden rounded-3xl bg-transparent ${showRightPanel ? "lg:w-[65%]" : "lg:w-full"}`}
+          className={`relative flex h-full flex-1 flex-col overflow-hidden rounded-3xl border border-primary/10 bg-white/45 shadow-[0_12px_30px_rgba(2,32,16,0.08)] backdrop-blur-sm ${showRightPanel ? "lg:w-[65%]" : "lg:w-full"}`}
         >
-          <div className="border-b border-primary/10 bg-white/60 px-5 py-4 backdrop-blur-sm md:px-6">
+          <div className="border-b border-primary/10 bg-white/70 px-5 py-4 backdrop-blur-sm md:px-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -171,14 +183,14 @@ export default function PlannerPage() {
                 </p>
               </div>
             ) : (
-              <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
+              <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 pb-2">
                 {messages.map((message) => (
                   <article
                     key={message.id}
                     className={`w-fit max-w-[85%] rounded-2xl px-4 py-3 text-sm md:text-base ${
                       message.role === "user"
-                        ? "ml-auto rounded-br-sm bg-primary text-white"
-                        : "rounded-bl-sm border border-slate-200 bg-white text-slate-800"
+                        ? "ml-auto rounded-br-sm bg-primary text-white shadow-[0_8px_18px_rgba(8,104,63,0.3)]"
+                        : "rounded-bl-sm border border-slate-200/80 bg-white/90 text-slate-800 shadow-sm"
                     }`}
                   >
                     {message.loading ? (
@@ -203,7 +215,7 @@ export default function PlannerPage() {
           </div>
 
           <div
-            className={`border-t border-primary/10 bg-white/60 px-4 pb-5 pt-4 backdrop-blur ${hasStarted ? "" : "mt-auto"}`}
+            className={`border-t border-primary/10 bg-white/75 px-4 pb-5 pt-4 backdrop-blur ${hasStarted ? "" : "mt-auto"}`}
           >
             <div className="mx-auto flex w-full max-w-3xl flex-wrap gap-2 pb-3">
               {suggestions.map((prompt) => (
@@ -221,18 +233,18 @@ export default function PlannerPage() {
 
             <form
               onSubmit={handleSubmit}
-              className="mx-auto flex w-full max-w-3xl items-center gap-2 rounded-2xl bg-white/20"
+              className="mx-auto flex w-full max-w-3xl items-center gap-2 rounded-2xl border border-primary/15 bg-white px-2 py-1 shadow-[0_6px_16px_rgba(15,23,42,0.08)]"
             >
               <input
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
                 placeholder="Message planner bot..."
                 disabled={isLoading}
-                className="h-11 flex-1 rounded-xl border-none bg-transparent px-3 text-sm text-slate-800 outline-none placeholder:text-slate-400 disabled:opacity-50 md:text-base"
+                className="h-10 flex-1 rounded-xl border-none bg-transparent px-3 text-sm text-slate-800 outline-none placeholder:text-slate-400 disabled:opacity-50 md:text-base"
               />
               <button
                 type="submit"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
                 disabled={!input.trim() || isLoading}
                 aria-label="Send message"
               >
@@ -247,8 +259,8 @@ export default function PlannerPage() {
         </section>
 
         {showRightPanel && (
-          <aside className="hidden w-[35%] shrink-0 overflow-hidden rounded-3xl bg-transparent lg:flex lg:flex-col">
-            <div className="border-b border-primary/10 px-5 py-4">
+          <aside className="hidden h-full w-[35%] shrink-0 overflow-hidden rounded-3xl border border-primary/10 bg-white/55 shadow-[0_12px_30px_rgba(2,32,16,0.08)] backdrop-blur-sm lg:flex lg:flex-col">
+            <div className="shrink-0 border-b border-primary/10 bg-white/70 px-5 py-4">
               <h3 className="text-sm font-semibold text-slate-900 md:text-base">
                 Matched Places
               </h3>
@@ -257,54 +269,106 @@ export default function PlannerPage() {
               </p>
             </div>
 
-            <div className="space-y-3 overflow-y-auto px-4 py-4">
-              {sources.map((place, i) => {
-                const detail = placeDetails.get(place.place_id);
-                return (
-                  <article
-                    key={`${place.place_id}-${i}`}
-                    className="overflow-hidden rounded-2xl border border-primary/15 bg-white"
-                  >
-                    {detail?.imageUrl && (
-                      <div className="h-36 w-full overflow-hidden">
-                        <img
-                          src={detail.imageUrl}
-                          alt={detail.name}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="p-4">
-                      <div className="mb-2 flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-slate-900">
-                          {place.name}
-                        </h4>
-                        <span className="rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">
-                          {place.type ?? "Place"}
-                        </span>
-                      </div>
-                      <p className="flex items-center gap-1 text-xs text-slate-600">
-                        <MapPin className="h-3.5 w-3.5 text-primary" />
-                        {place.district ?? "Nepal"}
-                        {place.state ? `, ${place.state}` : ""}
-                      </p>
-                      {(detail?.description ?? place.description) && (
-                        <p className="mt-2 line-clamp-2 text-[11px] text-slate-500">
-                          {detail?.description ?? place.description}
-                        </p>
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+              <div className="space-y-3">
+                {sources.map((place, i) => {
+                  const detail = placeDetails.get(place.place_id);
+                  const isSelected = selectedPlaces.some(
+                    (selected) => selected.place_id === place.place_id,
+                  );
+
+                  return (
+                    <article
+                      key={`${place.place_id}-${i}`}
+                      className="overflow-hidden rounded-2xl border border-primary/15 bg-white shadow-sm"
+                    >
+                      {detail?.imageUrl && (
+                        <div className="h-36 w-full overflow-hidden">
+                          <img
+                            src={detail.imageUrl}
+                            alt={detail.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
                       )}
-                      {place.$similarity !== undefined && (
-                        <p className="mt-1 text-[10px] text-slate-400">
-                          Match: {(place.$similarity * 100).toFixed(0)}%
+                      <div className="p-4">
+                        <div className="mb-2 flex items-center justify-between">
+                          <h4 className="text-sm font-semibold text-slate-900">
+                            {place.name}
+                          </h4>
+                          <span className="rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">
+                            {place.type ?? "Place"}
+                          </span>
+                        </div>
+                        <p className="flex items-center gap-1 text-xs text-slate-600">
+                          <MapPin className="h-3.5 w-3.5 text-primary" />
+                          {place.district ?? "Nepal"}
+                          {place.state ? `, ${place.state}` : ""}
                         </p>
-                      )}
-                    </div>
-                  </article>
-                );
-              })}
+                        {(detail?.description ?? place.description) && (
+                          <p className="mt-2 line-clamp-2 text-[11px] text-slate-500">
+                            {detail?.description ?? place.description}
+                          </p>
+                        )}
+                        {place.$similarity !== undefined && (
+                          <p className="mt-1 text-[10px] text-slate-400">
+                            Match: {(place.$similarity * 100).toFixed(0)}%
+                          </p>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => addPlace(place)}
+                          disabled={isSelected}
+                          className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary transition hover:bg-primary hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {isSelected ? "Added" : "Add"}
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="mt-auto border-t border-primary/10 bg-primary/5 px-4 py-4">
+            <div className="shrink-0 border-t border-primary/10 bg-white/70 px-4 py-4">
+              <div className="flex items-center justify-between pb-2">
+                <h3 className="text-sm font-semibold text-slate-900 md:text-base">
+                  Selected Places
+                </h3>
+                <span className="text-xs text-slate-500">
+                  {selectedPlaces.length} added
+                </span>
+              </div>
+
+              {selectedPlaces.length === 0 ? (
+                <p className="mt-2 text-xs text-slate-500">
+                  Add places from the matched results to build your route.
+                </p>
+              ) : (
+                <div className="mt-1 max-h-80 space-y-2 overflow-y-auto pr-1">
+                  {selectedPlaces.map((place) => (
+                    <div
+                      key={place.place_id}
+                      className="flex items-center justify-between rounded-xl border border-primary/15 bg-white px-3 py-2"
+                    >
+                      <div className="text-sm font-medium text-slate-900">
+                        {place.name}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removePlace(place.place_id)}
+                        className="text-xs font-semibold text-primary transition hover:text-primary/80"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="shrink-0 border-t border-primary/10 bg-primary/5 px-4 py-4">
               <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary/90">
                 <Route className="h-4 w-4" />
                 Generate Route Plan
