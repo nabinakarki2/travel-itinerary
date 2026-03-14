@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Travel Itinerary Platform
 
-## Getting Started
+![Travel Itinerary Cover](public/Travel%20Itinerary%20Cover.png)
 
-First, run the development server:
+A production-oriented travel itinerary application built with Next.js (App Router), TypeScript, and Tailwind CSS. The system combines a streaming AI assistant with retrieval-augmented generation (RAG) to provide contextual travel planning recommendations.
+
+## Key Capabilities
+
+- **Streaming AI responses** via AWS Nova, delivered token-by-token to the client
+- **Retrieval Augmented Generation (RAG)** using vector search (Astra DB) and Gemini embeddings
+- **Interactive map-based place selection** (Leaflet) with client-only rendering to avoid SSR issues
+- **Shared selection state** managed with React Context across planner and itinerary pages
+
+## Setup
+
+### Install dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Copy `example.env` to `.env` in the project root, then update the required values:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cp example.env .env
+```
 
-## Learn More
+Required values:
 
-To learn more about Next.js, take a look at the following resources:
+- `DATABASE_URL` — Postgres connection string used by Prisma
+- `GEMINI_API_KEY` — Google Gemini embedding API key
+- `NOVA_API_KEY` — AWS Nova (OpenAI-compatible) API key
+- `ASTRA_DB_ID`, `ASTRA_DB_REGION`, `ASTRA_DB_KEYSPACE`, `ASTRA_DB_APPLICATION_TOKEN` — DataStax Astra vector store credentials
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Optional:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `NEXT_PUBLIC_BASE_URL` — used for some preview tooling
 
-## Deploy on Vercel
+### Run locally
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open: http://localhost:3000
+
+## Architecture Overview
+
+### Streaming Chat + RAG
+
+- The planner UI issues a request to `/api/chat/stream`
+- The server identifies if the query is place-related and performs a vector search in Astra
+- The resulting relevant places are included as context in the prompt
+- The server streams Nova completion tokens back as NDJSON events
+- The client renders chat text in real time and updates matched place cards as they arrive
+
+### Map Picker (Local Guide)
+
+The local guide page includes a Leaflet map component that only renders on the client to avoid server-side rendering issues. Users can click the map to set coordinates and use a search box (geocoding) to locate places.
+
+### Shared State (Selected Places)
+
+Selected places are stored in React Context so that both the planner and itinerary views operate on the same set of selected locations without relying on URL parameters.
+
+## Project Structure
+
+- `app/` — Next.js App Router pages and API routes
+  - `app/planner` — planner UI with streaming chat
+  - `app/route` — itinerary view for selected places
+  - `app/local-guide` — map-based place submission
+  - `app/api/chat/stream` — NDJSON streaming chat endpoint
+- `actions/` — server actions for database operations and business logic
+- `lib/` — integrations (Nova, Gemini, Astra)
+- `prisma/` — Prisma schema and migrations
+
+## Development Commands
+
+```bash
+pnpm dev        # start development server
+pnpm build      # production build
+pnpm start      # start production build
+pnpm lint       # run ESLint
+pnpm test       # run test suite (if configured)
+```
+
+## Notes
+
+- The application is designed for Nepal travel planning, but the data model and routing are adaptable to other regions.
+- Streaming endpoints use NDJSON (newline-delimited JSON); the client parser is built to handle this format.
+
+## Recommended Improvements
+
+- Improve handling for “no matching places” results in the RAG flow
+- Add end-to-end tests for the streaming endpoint and parser
+- Add authentication and persistence for saved itineraries
