@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Background,
   Controls,
@@ -97,6 +97,79 @@ export default function RouteGraph({
     return [a, b].sort().join("--");
   }, [endId, startId, currentLocation]);
 
+  const [roadDistances, setRoadDistances] = useState<
+    Array<Array<number | null>>
+  >([]);
+  const [roadDistanceError, setRoadDistanceError] = useState<string>("");
+  const [roadDistanceLoading, setRoadDistanceLoading] = useState(false);
+
+  useEffect(() => {
+    if (graphPoints.length < 2) {
+      setRoadDistances([]);
+      setRoadDistanceError("");
+      setRoadDistanceLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const run = async () => {
+      setRoadDistanceLoading(true);
+      setRoadDistanceError("");
+
+      try {
+        const response = await fetch("/api/route/osrm-table", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            points: graphPoints.map((point) => ({
+              lat: point.lat,
+              lon: point.lon,
+            })),
+          }),
+        });
+
+        const data = (await response.json()) as {
+          distances?: Array<Array<number | null>>;
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to fetch road distances.");
+        }
+
+        if (!Array.isArray(data.distances)) {
+          throw new Error("Invalid road distance matrix response.");
+        }
+
+        if (!cancelled) {
+          setRoadDistances(data.distances);
+        }
+      } catch (error: unknown) {
+        if (!cancelled) {
+          setRoadDistances([]);
+          setRoadDistanceError(
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch road distances.",
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setRoadDistanceLoading(false);
+        }
+      }
+    };
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [graphPoints]);
+
   const graphNodes = useMemo<RFNode[]>(() => {
     if (graphPoints.length === 0) return [];
 
@@ -153,41 +226,28 @@ export default function RouteGraph({
   const graphEdges = useMemo<RFEdge[]>(() => {
     const edges: RFEdge[] = [];
 
-    const haversineKm = (
-      lat1: number,
-      lon1: number,
-      lat2: number,
-      lon2: number,
-    ) => {
-      const toRad = (deg: number) => (deg * Math.PI) / 180;
-      const R = 6371;
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-      const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    };
-
     for (let i = 0; i < graphPoints.length; i += 1) {
       for (let j = i + 1; j < graphPoints.length; j += 1) {
         const sourcePoint = graphPoints[i];
         const targetPoint = graphPoints[j];
         const edgeKey = [sourcePoint.id, targetPoint.id].sort().join("--");
-        const distance = haversineKm(
-          sourcePoint.lat,
-          sourcePoint.lon,
-          targetPoint.lat,
-          targetPoint.lon,
+        const forwardMeters = roadDistances[i]?.[j] ?? null;
+        const backwardMeters = roadDistances[j]?.[i] ?? null;
+        const metersCandidates = [forwardMeters, backwardMeters].filter(
+          (d): d is number => typeof d === "number" && Number.isFinite(d),
         );
+        const distanceKm =
+          metersCandidates.length > 0
+            ? Math.min(...metersCandidates) / 1000
+            : null;
         const isHighlighted = edgeKey === highlightedEdgeKey;
 
         edges.push({
           id: edgeKey,
           source: sourcePoint.id,
           target: targetPoint.id,
-          label: `${distance.toFixed(1)} km`,
+          label:
+            distanceKm != null ? `${distanceKm.toFixed(1)} km` : "No road path",
           type: "straight",
           markerEnd: {
             type: MarkerType.ArrowClosed,
@@ -198,6 +258,7 @@ export default function RouteGraph({
           style: {
             stroke: isHighlighted ? "#16a34a" : "#94a3b8",
             strokeWidth: isHighlighted ? 3 : 1.2,
+            strokeDasharray: distanceKm == null ? "6 4" : undefined,
           },
           labelStyle: {
             fontSize: 11,
@@ -215,7 +276,7 @@ export default function RouteGraph({
     }
 
     return edges;
-  }, [graphPoints, highlightedEdgeKey]);
+  }, [graphPoints, highlightedEdgeKey, roadDistances]);
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -223,9 +284,17 @@ export default function RouteGraph({
         Network Graph (React Flow)
       </h2>
       <p className="mt-2 text-sm text-slate-600">
-        All places are connected to each other with weighted edges (distance in
-        km). The selected route is highlighted in green.
+        All places are connected to each other with weighted edges from OSRM
+        road-network distance. The selected route is highlighted in green.
       </p>
+      {roadDistanceLoading ? (
+        <p className="mt-2 text-xs text-slate-500">
+          Fetching OSRM road distances...
+        </p>
+      ) : null}
+      {roadDistanceError ? (
+        <p className="mt-2 text-xs text-red-600">{roadDistanceError}</p>
+      ) : null}
       <div className="mt-4 h-[460px] overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
         {graphNodes.length >= 2 ? (
           <ReactFlow
