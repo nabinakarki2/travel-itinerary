@@ -493,6 +493,7 @@ export default function RoutePage() {
           </div>
         ) : (
           <>
+            {/* here we will now add the map */}
             {bnbResult && (
               <BranchAndBoundSection
                 bnbResult={bnbResult}
