@@ -110,6 +110,8 @@ export default function RoutePage() {
   >([]);
   const [roadDistanceLoading, setRoadDistanceLoading] = useState(false);
   const [roadDistanceError, setRoadDistanceError] = useState("");
+  const [roadDistanceMatrixKey, setRoadDistanceMatrixKey] = useState("");
+  const [isGeneratingRoute, setIsGeneratingRoute] = useState(false);
 
   const [bnbResult, setBnbResult] = useState<BranchAndBoundResult | null>(null);
   const [visibleStepCount, setVisibleStepCount] = useState(0);
@@ -164,6 +166,17 @@ export default function RoutePage() {
     startId,
   ]);
 
+  const graphPointsKey = useMemo(
+    () =>
+      graphPoints
+        .map(
+          (point) =>
+            `${point.id}:${point.lat.toFixed(6)},${point.lon.toFixed(6)}`,
+        )
+        .join("|"),
+    [graphPoints],
+  );
+
   const startNodeId = useMemo(() => {
     if (startId == null) return null;
     if (startId === -1) return "airport";
@@ -193,9 +206,10 @@ export default function RoutePage() {
     endIndex >= 0 &&
     startIndex !== endIndex &&
     graphPoints.length >= 2 &&
-    !roadDistanceLoading;
+    !isGeneratingRoute;
 
   const hasMatchingMatrix =
+    roadDistanceMatrixKey === graphPointsKey &&
     roadDistances.length === graphPoints.length &&
     roadDistances.every((row) => row.length === graphPoints.length);
 
@@ -241,7 +255,7 @@ export default function RoutePage() {
   const handleGenerateRoute = async () => {
     if (!canGenerateRoute || !isDelayValid) return;
 
-    setRoadDistanceLoading(true);
+    setIsGeneratingRoute(true);
     setRoadDistanceError("");
     setBnbResult(null);
     setVisibleStepCount(0);
@@ -254,6 +268,7 @@ export default function RoutePage() {
         ? roadDistances
         : await fetchRoadDistanceMatrix(graphPoints);
       setRoadDistances(distances);
+      setRoadDistanceMatrixKey(graphPointsKey);
 
       const result = solveRouteWithBranchAndBound({
         startIndex,
@@ -265,20 +280,26 @@ export default function RoutePage() {
       setBnbResult(result);
     } catch (error: unknown) {
       setRoadDistances([]);
+      setRoadDistanceMatrixKey("");
       setRoadDistanceError(
         error instanceof Error
           ? error.message
           : "Failed to run route generation.",
       );
     } finally {
-      setRoadDistanceLoading(false);
+      setIsGeneratingRoute(false);
     }
   };
 
   useEffect(() => {
     if (graphPoints.length < 2) {
       setRoadDistances([]);
+      setRoadDistanceMatrixKey("");
       setRoadDistanceError("");
+      return;
+    }
+
+    if (hasMatchingMatrix) {
       return;
     }
 
@@ -292,10 +313,12 @@ export default function RoutePage() {
         const distances = await fetchRoadDistanceMatrix(graphPoints);
         if (!cancelled) {
           setRoadDistances(distances);
+          setRoadDistanceMatrixKey(graphPointsKey);
         }
       } catch (error: unknown) {
         if (!cancelled) {
           setRoadDistances([]);
+          setRoadDistanceMatrixKey("");
           setRoadDistanceError(
             error instanceof Error
               ? error.message
@@ -314,7 +337,7 @@ export default function RoutePage() {
     return () => {
       cancelled = true;
     };
-  }, [graphPoints]);
+  }, [graphPoints, graphPointsKey, hasMatchingMatrix]);
 
   useEffect(() => {
     if (!bnbResult || bnbResult.steps.length === 0) {
@@ -434,7 +457,7 @@ export default function RoutePage() {
               disabled={!canGenerateRoute || !isDelayValid}
               className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
             >
-              {roadDistanceLoading ? "Generating..." : "Generate Route"}
+              {isGeneratingRoute ? "Generating..." : "Generate Route"}
             </button>
             <div className="text-xs text-slate-600">
               <p>
