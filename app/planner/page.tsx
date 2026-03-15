@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowRight,
@@ -92,7 +92,7 @@ const quickPrompts = [
   "Find the top adventure activities near Kathmandu",
 ];
 
-export default function PlannerPage() {
+function PlannerPageClient() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -578,5 +578,19 @@ export default function PlannerPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function PlannerPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center text-sm text-slate-500">
+          Loading planner...
+        </div>
+      }
+    >
+      <PlannerPageClient />
+    </Suspense>
   );
 }
