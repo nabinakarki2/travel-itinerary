@@ -377,6 +377,17 @@ export default function PlannerPage() {
                           <img
                             src={detail.imageUrl}
                             alt={detail.name}
+                            loading="lazy"
+                            onError={(event) => {
+                              const target = event.currentTarget;
+                              if (
+                                !target.src.includes(
+                                  "Travel Itinerary Cover.png",
+                                )
+                              ) {
+                                target.src = "/Travel Itinerary Cover.png";
+                              }
+                            }}
                             className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
                           />
                         </div>
