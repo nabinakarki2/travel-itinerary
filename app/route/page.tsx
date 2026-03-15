@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
 import { useSelectedPlaces } from "@/app/context/SelectedPlacesContext";
 import { getPlacesByIds, PlaceDetail } from "@/actions/getPlacesByIds";
 import RouteSelectors from "@/app/route/components/RouteSelectors";
@@ -22,11 +23,18 @@ const RouteFlowMap = dynamic(
 );
 
 export default function RoutePage() {
+  const router = useRouter();
   const { selectedPlaces, removePlace } = useSelectedPlaces();
   const selectedIds = useMemo(
     () => selectedPlaces.map((p) => p.place_id),
     [selectedPlaces],
   );
+
+  useEffect(() => {
+    if (selectedPlaces.length === 0) {
+      router.replace("/planner");
+    }
+  }, [router, selectedPlaces.length]);
 
   const [placeDetails, setPlaceDetails] = useState<PlaceDetail[]>([]);
   const [loading, setLoading] = useState(false);
@@ -439,17 +447,12 @@ export default function RoutePage() {
     if (!navigator.geolocation) return;
 
     setGeoRequested(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCurrentLocation({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-        });
-      },
-      () => {
-        // Keep fallback behavior when user blocks location permission.
-      },
-    );
+    navigator.geolocation.getCurrentPosition((position) => {
+      setCurrentLocation({
+        lat: position.coords.latitude,
+        lon: position.coords.longitude,
+      });
+    });
   }, [currentLocation, endId, geoRequested, startId]);
 
   return (

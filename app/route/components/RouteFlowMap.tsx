@@ -28,7 +28,6 @@ type PathSegment = {
   coordinates: LatLngTuple[];
   fromLabel: string;
   toLabel: string;
-  isFallback: boolean;
 };
 
 const PLACE_COLORS = [
@@ -206,20 +205,11 @@ export default function RouteFlowMap({ points }: RouteFlowMapProps) {
           coordinates: segment,
           fromLabel: from.label,
           toLabel: to.label,
-          isFallback: failedSegs.some(
-            (failed) => failed.from === from.label && failed.to === to.label,
-          ),
         });
       }
 
       if (!cancelled) {
         setPathSegments(nextSegments);
-        setFailedSegments(failedSegs);
-        setPathError(
-          failedSegs.length > 0
-            ? "Some road segments are missing or unreasonably long in the road network data. Dashed lines indicate direct fallback paths."
-            : "",
-        );
         setIsPathLoading(false);
       }
     };
@@ -303,9 +293,8 @@ export default function RouteFlowMap({ points }: RouteFlowMapProps) {
                     positions={segment.coordinates}
                     pathOptions={{
                       color: segmentColor,
-                      weight: segment.isFallback ? 4 : 5,
-                      opacity: segment.isFallback ? 0.7 : 0.9,
-                      dashArray: segment.isFallback ? "8 8" : undefined,
+                      weight: 5,
+                      opacity: 0.9,
                       lineCap: "round",
                       lineJoin: "round",
                     }}
@@ -316,9 +305,7 @@ export default function RouteFlowMap({ points }: RouteFlowMapProps) {
                           {segment.fromLabel} → {segment.toLabel}
                         </div>
                         <div className="text-slate-600">
-                          {segment.isFallback
-                            ? "Direct fallback segment"
-                            : "Road network segment"}
+                          Road network segment
                         </div>
                       </div>
                     </Tooltip>
