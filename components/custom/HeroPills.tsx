@@ -14,7 +14,7 @@ import {
   Route,
 } from "lucide-react";
 
-type ServiceItem = { label: string; icon: string };
+type ServiceItem = { label: string; icon: string; query?: string };
 
 const ICONS: Record<string, any> = {
   Home,
@@ -48,11 +48,12 @@ export default function HeroPills({ services }: { services: ServiceItem[] }) {
         const col = index % cols;
         const row = Math.floor(index / cols);
         const isPrimary = (row + col) % 2 === 0;
+        const targetQuery = service.query ?? service.label;
 
         return (
           <Link
             key={`${service.label}-${index}`}
-            href={`/search?q=${encodeURIComponent(service.label)}`}
+            href={`/planner?q=${encodeURIComponent(targetQuery)}`}
             className={`group relative z-0 overflow-hidden flex items-center gap-4 justify-start w-full rounded-full px-4 py-3 md:px-6 md:py-3 text-sm md:text-base font-semibold shadow-sm hover:-translate-y-0.5 hover:shadow-md transition-all min-h-14`}
           >
             <span

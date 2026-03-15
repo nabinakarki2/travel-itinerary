@@ -3,11 +3,36 @@ import { SearchBar } from "@/components/custom/SearchBar";
 import HeroPills from "@/components/custom/HeroPills";
 
 const heroServices = [
-  { label: "Chat Recommendations", icon: "Bubbles" },
-  { label: "Optimized Routes", icon: "Route" },
-  { label: "Hotels & Eats", icon: "Bed" },
-  { label: "Local Guides", icon: "Users" },
-  { label: "Map Planner", icon: "MapPin" },
+  {
+    label: "Trecking",
+    icon: "Route",
+    query: "Best Trecking Places",
+  },
+  {
+    label: "Adventure",
+    icon: "Bubbles",
+    query: "Best Adventure Places",
+  },
+  {
+    label: "Religious",
+    icon: "Users",
+    query: "Best Religious Places",
+  },
+  {
+    label: "Hiking",
+    icon: "Route",
+    query: "Best Hiking Trails",
+  },
+  {
+    label: "Refreshment",
+    icon: "Bed",
+    query: "Best Refreshment Places",
+  },
+  {
+    label: "Mountains",
+    icon: "MapPin",
+    query: "Best Mountain Places",
+  },
 ];
 
 export default function HeroSection() {
@@ -46,7 +71,7 @@ export default function HeroSection() {
           </div>
 
           <div className="w-full max-w-4xl">
-            <SearchBar placeholder="Enter starting city (e.g. Butwal)" />
+            <SearchBar placeholder="Suggest best trekking location in pokhara..." />
             <p className="mt-3 text-sm text-slate-500">
               Popular:{" "}
               <span className="text-slate-700">

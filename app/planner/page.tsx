@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   Clock3,
@@ -103,7 +103,9 @@ export default function PlannerPage() {
 
   const { selectedPlaces, addPlace, removePlace } = useSelectedPlaces();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const bottomRef = useRef<HTMLDivElement>(null);
+  const lastAutoSubmittedQueryRef = useRef<string>("");
 
   const hasStarted = messages.length > 0;
   const showRightPanel = sources.length > 0;
@@ -123,6 +125,20 @@ export default function PlannerPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    const q = searchParams.get("q")?.trim() ?? "";
+    if (!q) {
+      return;
+    }
+
+    if (lastAutoSubmittedQueryRef.current === q) {
+      return;
+    }
+
+    lastAutoSubmittedQueryRef.current = q;
+    submitMessage(q);
+  }, [searchParams]);
 
   const suggestions = useMemo(
     () => (hasStarted ? [] : quickPrompts),
