@@ -70,6 +70,13 @@ export function solveRouteWithBranchAndBound({
     };
   }
 
+  console.log("data", {
+    startIndex,
+    endIndex,
+    labels,
+    distances,
+  });
+
   const steps: BranchTraceNode[] = [];
   let bestCost = INF;
   let bestPath: number[] = [];

@@ -27,12 +27,12 @@ export function minOutgoingToSet(
 ): number {
   let best = INF;
 
-  for (const to of targets) {
+  for (let i = 0; i < targets.length; i++) {
+    const to = targets[i];
     if (from === to) continue;
-    const d = getEdgeDistance(distances, from, to);
-    if (d < best) best = d;
+    const dist = getEdgeDistance(distances, from, to);
+    if (dist < best) best = dist;
   }
-
   return best;
 }
 
@@ -44,29 +44,39 @@ export function computeLowerBound(
   totalNodes: number,
 ): number {
   const visited = new Set(path);
-  const last = path[path.length - 1];
+  const lastNode = path[path.length - 1];
 
-  const unvisited = Array.from({ length: totalNodes }, (_, i) => i).filter(
-    (i) => !visited.has(i) && i !== endIndex,
-  );
-
-  if (unvisited.length === 0) {
-    const tail = getEdgeDistance(distances, last, endIndex);
-    return tail === INF ? INF : currentCost + tail;
+  // All nodes that are not visited and are not the destination
+  const unvisited = [];
+  for (let i = 0; i < totalNodes; i++) {
+    if (i !== endIndex && !visited.has(i)) unvisited.push(i);
   }
 
+  // If no more nodes to visit, just add cost to reach the end
+  if (unvisited.length === 0) {
+    const directCost = getEdgeDistance(distances, lastNode, endIndex);
+    return directCost === INF ? INF : currentCost + directCost;
+  }
+
+  // Start with the actual cost so far
   let bound = currentCost;
 
-  const firstLegTargets = [...unvisited, endIndex];
-  const firstLeg = minOutgoingToSet(distances, last, firstLegTargets);
-  if (firstLeg === INF) return INF;
-  bound += firstLeg;
+  // Cheapest edge from the current last node to any unvisited node or the end
+  const distanceFromLast = minOutgoingToSet(distances, lastNode, [
+    ...unvisited,
+    endIndex,
+  ]);
+  if (distanceFromLast === INF) return INF;
+  bound += distanceFromLast;
 
-  for (const node of unvisited) {
-    const nextTargets = [...unvisited.filter((u) => u !== node), endIndex];
-    const nodeBest = minOutgoingToSet(distances, node, nextTargets);
-    if (nodeBest === INF) return INF;
-    bound += nodeBest;
+  // For each unvisited node, cheapest edge to any other unvisited node or the end
+
+  for (let i = 0; i < unvisited.length; i++) {
+    const currentNode = unvisited[i];
+    const remainingTargets = [...unvisited.filter((u) => u !== currentNode), endIndex];
+    const minDistanceFromNode = minOutgoingToSet(distances, currentNode, remainingTargets);
+    if (minDistanceFromNode === INF) return INF;
+    bound += minDistanceFromNode;
   }
 
   return bound;
