@@ -172,7 +172,6 @@ lib/
   nova.ts                        # Nova client (sync + stream)
   gemini.ts                      # Embedding client
   astra.ts                       # Astra vector operations
-  branch-and-bound-core.ts       # Core optimization algorithm
   branch-and-bound.ts            # Trace-enabled variant for UI tree
   db.ts                          # Prisma/PostgreSQL client
 
