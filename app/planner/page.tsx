@@ -1,6 +1,13 @@
 "use client";
 
-import { FormEvent, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import {
+  FormEvent,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowRight,
@@ -294,17 +301,6 @@ function PlannerPageClient() {
                     AI travel copilot with route-ready recommendations
                   </p>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  Trusted Results
-                </span>
-                <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-                  <Clock3 className="h-3.5 w-3.5" />
-                  Live Session
-                </span>
               </div>
             </div>
           </div>

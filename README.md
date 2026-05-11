@@ -35,18 +35,17 @@ Travel Itinerary is designed to be a full-stack, end-to-end travel planning expe
 
 ## Tech Stack
 
-| Layer         | Technology                                        |
-| ------------- | ------------------------------------------------- |
-| Frontend      | Next.js 16 (App Router), React 19, TypeScript     |
-| Styling       | Tailwind CSS v4                                   |
-| UI Utilities  | Lucide Icons, React Markdown, XYFlow (React Flow) |
-| Maps          | Leaflet + React Leaflet, OSRM                     |
-| Backend       | Next.js Route Handlers + Server Actions           |
-| AI Model      | AWS Nova (OpenAI-compatible endpoint)             |
-| Embeddings    | Google Gemini Embedding (`gemini-embedding-001`)  |
-| Vector Search | DataStax Astra DB                                 |
-| Database      | PostgreSQL + Prisma                               |
-| Tooling       | ESLint, pnpm                                      |
+| Layer         | Technology                                       |
+| ------------- | ------------------------------------------------ |
+| Frontend      | Next.js 16 (App Router), React 19, TypeScript    |
+| Styling       | Tailwind CSS v4                                  |
+| UI Utilities  | Lucide Icons, XYFlow (React Flow)                |
+| Maps          | Leaflet + React Leaflet, OSRM                    |
+| Backend       | Next.js Route Handlers + Server Actions          |
+| AI Model      | AWS Nova (OpenAI-compatible endpoint)            |
+| Embeddings    | Google Gemini Embedding (`gemini-embedding-001`) |
+| Vector Search | DataStax Astra DB                                |
+| Database      | PostgreSQL + Prisma                              |
 
 ## Core User Workflow
 
