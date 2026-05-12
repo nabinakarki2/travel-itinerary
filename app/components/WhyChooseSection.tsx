@@ -1,32 +1,36 @@
-import { Bubbles, Users, Route, MapPin } from "lucide-react";
+import Image from "next/image";
 
 const trustItems = [
   {
     title: "Chat Bot Recommendations",
     description:
       "Interact with our bot to discover and add domestic attractions starting from Butwal or your city.",
-    icon: Bubbles,
+    image:
+      "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80",
     highlight: "Easy discovery",
   },
   {
     title: "Local Guides",
     description:
       "Guides and community members can contribute new places so the database stays current.",
-    icon: Users,
+    image:
+      "https://images.unsplash.com/photo-1601439678777-b2b3c7fa3a2e?w=800&q=80",
     highlight: "Always fresh",
   },
   {
     title: "Optimized Path",
     description:
       "A mapped itinerary calculates the shortest route that covers all your chosen spots.",
-    icon: Route,
+    image:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
     highlight: "Efficient travel",
   },
   {
     title: "Complete Booking Flow",
     description:
       "Select hotels, restaurants and travel partners then confirm everything in one seamless process.",
-    icon: MapPin,
+    image:
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
     highlight: "All set",
   },
 ];
@@ -58,8 +62,14 @@ export default function WhyChooseSection() {
                   </span>
                 )}
 
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <item.icon className="h-6 w-6" />
+                <div className="relative h-48 w-full overflow-hidden rounded-xl">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, 50vw"
+                  />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
                   {item.title}

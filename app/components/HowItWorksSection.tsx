@@ -1,23 +1,26 @@
-import { Bubbles, MapPin, CheckCircle } from "lucide-react";
+import Image from "next/image";
 
 const steps = [
   {
     title: "Start the Chat",
-    icon: Bubbles,
+    image:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
     description:
       "Begin from Butwal (or your hometown) and message our bot. Add places it recommends or type your own spots like temples and parks.",
     detail: "Interactive place selection",
   },
   {
     title: "Pick Stays & Partners",
-    icon: MapPin,
+    image:
+      "https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=800&q=80",
     description:
       "Once your list is ready, choose hotels, restaurants, and travel partners suggested for each location.",
     detail: "Hotels, eats & transport",
   },
   {
     title: "Confirm & View Route",
-    icon: CheckCircle,
+    image:
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80",
     description:
       "Lock in your itinerary and see a proper map displaying the shortest path covering all chosen sites.",
     detail: "Complete itinerary with map",
@@ -53,23 +56,32 @@ export default function HowItWorksSection() {
           {steps.map((step, index) => (
             <li
               key={step.title}
-              className="relative overflow-hidden rounded-[28px] border border-primary/15 bg-white p-6"
+              className="relative overflow-hidden rounded-[28px] border border-primary/15 bg-white"
             >
-              <div className="absolute -right-8 top-4 hidden h-20 w-20 rounded-full bg-primary/10 blur-3xl md:block" />
-              <div className="flex items-center justify-between">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary shadow-lg">
-                  <step.icon className="h-6 w-6" />
-                </div>
-                <span className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
-                  Step {index + 1}
-                </span>
+              <div className="relative h-52 w-full overflow-hidden">
+                <Image
+                  src={step.image}
+                  alt={step.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
               </div>
-              <h3 className="mt-6 text-xl font-semibold text-gray-900">
-                {step.title}
-              </h3>
-              <p className="mt-3 text-sm text-gray-600">{step.description}</p>
-              <div className="mt-6 flex items-center justify-between text-sm font-semibold text-primary">
-                <span>{step.detail}</span>
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm font-semibold uppercase tracking-[0.3em] text-primary">
+                    Step {index + 1}
+                  </span>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {step.title}
+                </h3>
+                <p className="mt-3 text-sm text-gray-600">
+                  {step.description}
+                </p>
+                <div className="mt-6 text-sm font-semibold text-primary">
+                  {step.detail}
+                </div>
               </div>
             </li>
           ))}

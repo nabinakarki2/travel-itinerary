@@ -38,12 +38,6 @@ const heroServices = [
 export default function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-[#f4f8ff]">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -left-24 top-10 w-md h-112 bg-primary/14 rounded-full blur-3xl" />
-        <div className="absolute -right-32 bottom-0 w-120 h-120 bg-[#079AE1]/16 rounded-full blur-3xl" />
-        <div className="absolute left-1/2 top-10 -translate-x-1/2 w-72 h-72 bg-white/30 backdrop-blur-xl rounded-full blur-2xl" />
-      </div>
-
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-16 md:py-20 lg:py-24">
         <div className="flex flex-col items-center text-center gap-6">
           <Image
