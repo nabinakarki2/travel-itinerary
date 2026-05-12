@@ -1,69 +1,53 @@
 "use server";
 
 import prisma from "@/lib/db";
+import { auth } from "@/auth";
+import { placeSchema, type AddPlaceInput } from "@/lib/schemas";
 import { insertPlaceVector } from "@/lib/astra";
 import { generateEmbedding } from "@/lib/gemini";
 
-export type AddPlaceInput = {
-  name: string;
-  district: string;
-  state: string;
-  type: string;
-  latitude: number;
-  longitude: number;
-  description: string;
-  imageUrl: string;
-};
-
-export type AddPlaceResult =
-  | { success: true; placeId: number }
+export type PlaceActionResult =
+  | { success: true; placeId?: number }
   | { success: false; error: string };
 
-/**
- * Server action: add a place to PostgreSQL and Astra vector DB.
- * 1. Saves structured data to PostgreSQL via Prisma.
- * 2. Generates a Gemini embedding from the place description.
- * 3. Stores the vector in Astra for similarity search.
- */
-export async function addPlace(input: AddPlaceInput): Promise<AddPlaceResult> {
-  try {
-    // ── 1. Validate ──────────────────────────────────────────────
-    if (!input.name || !input.district || !input.state || !input.type) {
-      return {
-        success: false,
-        error: "Name, district, state, and type are required.",
-      };
-    }
+export async function addPlace(input: AddPlaceInput): Promise<PlaceActionResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "You must be signed in." };
+  }
 
-    // ── 2. Save to PostgreSQL ────────────────────────────────────
+  const parsed = placeSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  try {
+    const data = parsed.data;
     const place = await prisma.place.create({
       data: {
-        name: input.name,
-        district: input.district,
-        state: input.state,
-        type: input.type,
-        latitude: input.latitude || null,
-        longitude: input.longitude || null,
-        description: input.description || null,
-        imageUrl: input.imageUrl || null,
+        name: data.name,
+        district: data.district,
+        state: data.state,
+        type: data.type,
+        latitude: data.latitude || null,
+        longitude: data.longitude || null,
+        description: data.description || null,
+        imageUrl: data.imageUrl || null,
+        userId: session.user.id,
       },
     });
 
-    // ── 3. Generate embedding via Gemini ─────────────────────────
     const embeddingText = [
-      input.name,
-      input.type,
-      input.district,
-      input.state,
-      input.description,
+      data.name,
+      data.type,
+      data.district,
+      data.state,
+      data.description,
     ]
       .filter(Boolean)
       .join(" – ");
 
     const vector = await generateEmbedding(embeddingText);
-    console.log("Generated embedding vector:", vector);
-
-    // ── 4. Store in Astra vector DB ──────────────────────────────
     await insertPlaceVector(place.id, place.name, embeddingText, vector, {
       district: place.district,
       state: place.state,
@@ -77,16 +61,75 @@ export async function addPlace(input: AddPlaceInput): Promise<AddPlaceResult> {
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : "Unknown error occurred";
-
-    // Handle unique constraint violation
-    if (message.includes("Unique constraint")) {
-      return {
-        success: false,
-        error: "A place with that name already exists.",
-      };
-    }
-
     console.error("addPlace error:", error);
+    return { success: false, error: message };
+  }
+}
+
+export async function updatePlace(
+  id: number,
+  input: AddPlaceInput,
+): Promise<PlaceActionResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "You must be signed in." };
+  }
+
+  const existing = await prisma.place.findUnique({ where: { id } });
+  if (!existing || existing.userId !== session.user.id) {
+    return { success: false, error: "Place not found or access denied." };
+  }
+
+  const parsed = placeSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0].message };
+  }
+
+  try {
+    const data = parsed.data;
+    await prisma.place.update({
+      where: { id },
+      data: {
+        name: data.name,
+        district: data.district,
+        state: data.state,
+        type: data.type,
+        latitude: data.latitude || null,
+        longitude: data.longitude || null,
+        description: data.description || null,
+        imageUrl: data.imageUrl || null,
+      },
+    });
+
+    return { success: true };
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    console.error("updatePlace error:", error);
+    return { success: false, error: message };
+  }
+}
+
+export async function deletePlace(
+  id: number,
+): Promise<PlaceActionResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "You must be signed in." };
+  }
+
+  const existing = await prisma.place.findUnique({ where: { id } });
+  if (!existing || existing.userId !== session.user.id) {
+    return { success: false, error: "Place not found or access denied." };
+  }
+
+  try {
+    await prisma.place.delete({ where: { id } });
+    return { success: true };
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    console.error("deletePlace error:", error);
     return { success: false, error: message };
   }
 }

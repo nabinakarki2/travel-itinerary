@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SelectedPlacesProvider } from "@/app/context/SelectedPlacesContext";
+import Providers from "@/app/providers";
 import NavBar from "@/app/components/NavBar";
 import Image from "next/image";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
       >
+        <Providers>
         <SelectedPlacesProvider>
           <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md text-primary shadow-md">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -53,6 +55,7 @@ export default function RootLayout({
 
           {children}
         </SelectedPlacesProvider>
+        </Providers>
       </body>
     </html>
   );
