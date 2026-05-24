@@ -30,18 +30,24 @@ export default function LoginPage() {
     }
 
     setLoading(true);
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-    if (result?.error) {
+      if (result?.error) {
+        setError("Invalid email or password.");
+        setLoading(false);
+      } else {
+        setLoading(false);
+        router.push("/local-guide");
+        router.refresh();
+      }
+    } catch {
       setError("Invalid email or password.");
       setLoading(false);
-    } else {
-      router.push("/local-guide");
-      router.refresh();
     }
   }
 
