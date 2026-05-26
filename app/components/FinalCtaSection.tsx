@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function FinalCtaSection() {
   return (
-    <section className="bg-white pb-16">
+    <section className="bg-white py-20">
       <div className="mx-auto max-w-300 px-4 md:px-6">
         <div className="relative overflow-hidden rounded-3xl bg-primary py-16 px-6 text-white">
           <div

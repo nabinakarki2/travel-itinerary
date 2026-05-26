@@ -4,6 +4,7 @@ import "./globals.css";
 import { SelectedPlacesProvider } from "@/app/context/SelectedPlacesContext";
 import Providers from "@/app/providers";
 import NavBar from "@/app/components/NavBar";
+import Footer from "@/app/components/Footer";
 import Image from "next/image";
 
 const geistSans = Geist({
@@ -54,6 +55,7 @@ export default function RootLayout({
           </header>
 
           {children}
+          <Footer />
         </SelectedPlacesProvider>
         </Providers>
       </body>
