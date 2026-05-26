@@ -48,11 +48,11 @@ export default function HeroSection() {
             className="w-24 h-24 md:w-32 md:h-32 "
           />
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-tight max-w-4xl">
-            Plan Your Domestic Adventure with Chat‑Guided Precision
+            Plan Your Domestic Adventure with Chat Guided Precision
           </h1>
           <p className="text-base md:text-lg text-slate-600 max-w-3xl">
             Start from Butwal, chat with our guide bot to add temples, parks and
-            hidden gems – then pick hotels, transport partners and view a mapped
+            hidden gems then pick hotels, transport partners and view a mapped
             route that covers all your stops efficiently.
           </p>
 
@@ -69,7 +69,7 @@ export default function HeroSection() {
             <p className="mt-3 text-sm text-slate-500">
               Popular:{" "}
               <span className="text-slate-700">
-                Resunga, Muktinath, Shiva Temple – Palpa, Ghalegaun, Chitwan
+                Resunga, Muktinath, Shiva Temple Palpa, Ghalegaun, Chitwan
               </span>
             </p>
           </div>

@@ -44,7 +44,7 @@ export default function HowItWorksSection() {
             How It <span className="text-primary">Works</span>
           </h2>
           <p className="mx-auto mt-2 max-w-2xl text-gray-600">
-            Chat your way through planning and get a ready map — domestic travel
+            Chat your way through planning and get a ready map domestic travel
             simplified step by step.
           </p>
         </header>
@@ -76,9 +76,7 @@ export default function HowItWorksSection() {
                 <h3 className="text-xl font-semibold text-gray-900">
                   {step.title}
                 </h3>
-                <p className="mt-3 text-sm text-gray-600">
-                  {step.description}
-                </p>
+                <p className="mt-3 text-sm text-gray-600">{step.description}</p>
                 <div className="mt-6 text-sm font-semibold text-primary">
                   {step.detail}
                 </div>

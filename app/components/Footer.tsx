@@ -4,7 +4,6 @@ import { ArrowUpRight } from "lucide-react";
 const links = [
   { label: "Start Planning", href: "/planner" },
   { label: "Local Guide", href: "/local-guide" },
-  { label: "View Routes", href: "/route" },
   { label: "Sign In", href: "/login" },
 ];
 
@@ -17,7 +16,7 @@ export default function Footer() {
             <p className="mt-4 max-w-md text-2xl leading-snug text-gray-900 md:text-3xl md:leading-tight">
               Nepal is not a place you visit.
               <br />
-              <span className="text-gray-400">
+              <span className="text-primary">
                 It is a place you come back to.
               </span>
             </p>

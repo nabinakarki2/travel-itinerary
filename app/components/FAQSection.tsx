@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     q: "Is the route really optimized?",
-    a: "Absolutely. Our algorithm calculates the shortest possible route that covers all your chosen spots, saving you time and fuel — perfect for road trips within Nepal.",
+    a: "Absolutely. Our algorithm calculates the shortest possible route that covers all your chosen spots, saving you time and fuel perfect for road trips within Nepal.",
   },
   {
     q: "Do I need to create an account?",
@@ -42,8 +42,7 @@ export default function FAQSection() {
       <div className="mx-auto max-w-3xl px-4 md:px-6">
         <header className="mb-12 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
-            Frequently Asked{" "}
-            <span className="text-primary">Questions</span>
+            Frequently Asked <span className="text-primary">Questions</span>
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-gray-600">
             Everything you need to know about planning your domestic trip.

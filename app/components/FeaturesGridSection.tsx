@@ -1,18 +1,11 @@
-import {
-  MessageCircle,
-  Map,
-  Hotel,
-  Users,
-  Shield,
-  Zap,
-} from "lucide-react";
+import { MessageCircle, Map, Hotel, Users, Shield, Zap } from "lucide-react";
 
 const features = [
   {
     icon: MessageCircle,
     title: "Chat-Based Planning",
     description:
-      "Describe your dream trip to our bot and watch your itinerary build itself — no complex forms, just natural conversation.",
+      "Describe your dream trip to our bot and watch your itinerary build itself no complex forms, just natural conversation.",
   },
   {
     icon: Map,
@@ -30,7 +23,7 @@ const features = [
     icon: Users,
     title: "Local Guide Contributions",
     description:
-      "Community-sourced recommendations mean you discover authentic spots that guidebooks miss.",
+      "Community sourced recommendations mean you discover authentic spots that guidebooks miss.",
   },
   {
     icon: Shield,
@@ -42,7 +35,7 @@ const features = [
     icon: Zap,
     title: "Instant Itinerary Maps",
     description:
-      "See your entire trip laid out on an interactive map — with distances, estimated times, and alternate routes.",
+      "See your entire trip laid out on an interactive map with distances, estimated times, and alternate routes.",
   },
 ];
 
@@ -52,8 +45,7 @@ export default function FeaturesGridSection() {
       <div className="mx-auto max-w-300 px-4 md:px-6">
         <header className="mb-12 text-center">
           <h2 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl">
-            Everything You{" "}
-            <span className="text-primary">Need to Travel</span>
+            Everything You <span className="text-primary">Need to Travel</span>
           </h2>
           <p className="mx-auto mt-2 max-w-2xl text-gray-600">
             From chat-based planning to optimized routing — we&apos;ve got your
