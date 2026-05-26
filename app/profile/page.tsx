@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/db";
+import type { Place } from "@prisma/client";
 import ProfileClient from "./ProfileClient";
 
 export default async function ProfilePage() {
@@ -19,7 +20,7 @@ export default async function ProfilePage() {
 
   return (
     <ProfileClient
-      places={places.map((p) => ({
+      places={places.map((p: Place) => ({
         id: p.id,
         name: p.name,
         district: p.district,
