@@ -27,6 +27,8 @@ import type { Components } from "react-markdown";
 import type { PlaceResult } from "@/actions/search";
 import { getPlacesByIds, PlaceDetail } from "@/actions/getPlacesByIds";
 import { useSelectedPlaces } from "@/app/context/SelectedPlacesContext";
+import Image from "next/image";
+import Link from "next/link";
 
 const markdownRenderers: Components = {
   h1: ({ children }) => (
@@ -279,20 +281,26 @@ function PlannerPageClient() {
   }
 
   return (
-    <main className="relative h-[calc(100vh-4rem)] overflow-hidden bg-slate-50">
+    <main className="relative h-dvh overflow-hidden bg-slate-50">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(15,66,114,0.16),transparent_38%),radial-gradient(circle_at_100%_100%,rgba(14,116,144,0.14),transparent_32%)]" />
       <div className="pointer-events-none absolute -top-24 left-1/4 h-72 w-72 rounded-full bg-primary/8 blur-3xl" />
 
-      <div className="relative mx-auto flex h-full w-full max-w-screen-2xl gap-4 overflow-hidden px-3 py-3 md:gap-6 md:px-6 md:py-5">
+      <div className="relative mx-auto flex h-full w-full max-w-screen-2xl gap-4 overflow-hidden md:gap-6 ">
         <section
-          className={`relative flex h-full flex-1 flex-col overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/85 shadow-[0_24px_60px_-34px_rgba(15,66,114,0.65)] backdrop-blur-sm ${showRightPanel ? "lg:w-[66%]" : "lg:w-full"}`}
+          className={`relative flex h-full flex-1 flex-col overflow-hidden ${showRightPanel ? "lg:w-[66%]" : "lg:w-full"}`}
         >
-          <div className="border-b border-slate-200/80 bg-[linear-gradient(120deg,rgba(15,66,114,0.08),rgba(255,255,255,0.95),rgba(8,145,178,0.08))] px-4 py-4 md:px-6">
+          <div className=" px-4 py-4 md:px-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-white shadow-[0_10px_28px_-12px_rgba(15,66,114,0.85)]">
-                  <TrendingUpDownIcon className="h-5 w-5" />
-                </div>
+                <Link href="/" className="h-11 w-11 border-primary  text-white">
+                  <Image
+                    src="/travel-itinerary.png"
+                    alt="Logo"
+                    width={200}
+                    height={200}
+                    className="object-cover w-full h-full"
+                  />
+                </Link>
                 <div>
                   <h1 className="text-base font-semibold text-slate-900 md:text-lg">
                     Trip Planning Workspace
@@ -307,7 +315,7 @@ function PlannerPageClient() {
 
           <div className="flex-1 overflow-y-auto px-3 py-4 md:px-6 md:py-5">
             {!hasStarted ? (
-              <div className="mx-auto mt-6 flex max-w-3xl flex-col items-center text-center md:mt-10">
+              <div className="mx-auto mt-6 flex flex-col items-center text-center md:mt-10">
                 <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                   <Compass className="h-8 w-8" />
                 </div>
@@ -321,7 +329,7 @@ function PlannerPageClient() {
                 </p>
               </div>
             ) : (
-              <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 pb-3">
+              <div className="mx-auto flex w-full flex-col gap-4 pb-3">
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -329,7 +337,13 @@ function PlannerPageClient() {
                   >
                     {message.role === "assistant" && (
                       <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                        <ScanFace className="h-4 w-4" />
+                        <Image
+                          src="/travel-itinerary.png"
+                          alt="Logo"
+                          width={200}
+                          height={200}
+                          className="object-cover w-full h-full p-1"
+                        />
                       </div>
                     )}
 
@@ -367,10 +381,10 @@ function PlannerPageClient() {
           </div>
 
           <div
-            className={`border-t border-slate-200/80 bg-white/95 px-3 pb-4 pt-3 md:px-6 md:pb-5 md:pt-4 ${hasStarted ? "" : "mt-auto"}`}
+            className={` px-3 pb-4 pt-3 md:px-6 md:pb-5 md:pt-4 ${hasStarted ? "" : "mt-auto"}`}
           >
             {!hasStarted && (
-              <div className="mx-auto flex w-full max-w-4xl flex-wrap gap-2 pb-3">
+              <div className="mx-auto flex w-full flex-wrap gap-2 pb-3">
                 {suggestions.map((prompt) => (
                   <button
                     key={prompt}
@@ -387,7 +401,7 @@ function PlannerPageClient() {
 
             <form
               onSubmit={handleSubmit}
-              className="mx-auto flex w-full max-w-4xl items-center gap-2 rounded-2xl border border-slate-300 bg-white px-2 py-1.5 shadow-[0_14px_28px_-22px_rgba(15,23,42,0.95)]"
+              className="mx-auto flex w-full items-center gap-2 rounded-2xl border border-slate-300 bg-white px-2 py-1.5 shadow-[0_14px_28px_-22px_rgba(15,23,42,0.95)]"
             >
               <input
                 value={input}
@@ -413,7 +427,7 @@ function PlannerPageClient() {
         </section>
 
         {showRightPanel && (
-          <aside className="hidden h-full w-[34%] shrink-0 overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/90 shadow-[0_24px_60px_-34px_rgba(15,66,114,0.65)] lg:flex lg:flex-col">
+          <aside className="hidden h-[90vh] w-[34%] shrink-0 overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/90 shadow-[0_24px_60px_-34px_rgba(15,66,114,0.65)] lg:flex lg:flex-col mt-[5vh]">
             <div className="shrink-0 border-b border-slate-200 px-5 py-4">
               <h3 className="text-sm font-semibold text-slate-900 md:text-base">
                 Discovery Results
@@ -581,7 +595,7 @@ export default function PlannerPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center text-sm text-slate-500">
+        <div className="flex min-h-dvh items-center justify-center text-sm text-slate-500">
           Loading planner...
         </div>
       }

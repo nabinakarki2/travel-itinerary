@@ -3,9 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SelectedPlacesProvider } from "@/app/context/SelectedPlacesContext";
 import Providers from "@/app/providers";
-import NavBar from "@/app/components/NavBar";
-import Footer from "@/app/components/Footer";
-import Image from "next/image";
+import LayoutShell from "@/app/components/LayoutShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,32 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
         <SelectedPlacesProvider>
-          <header className="sticky top-0 z-50 bg-white/70 backdrop-blur-md text-primary shadow-md">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="flex h-16 items-center justify-between">
-                <div className="flex items-center">
-                  <a href="/" className="text-lg font-bold flex items-center">
-                    <Image
-                      src="/travel-itinerary.png"
-                      alt="Travel Itinerary Logo"
-                      width={300}
-                      height={300}
-                      className="inline-block mr-2 w-16"
-                    />
-                    Travel Itinerary
-                  </a>
-                </div>
-                <NavBar />
-              </div>
-            </div>
-          </header>
-
-          {children}
-          <Footer />
+          <LayoutShell>{children}</LayoutShell>
         </SelectedPlacesProvider>
         </Providers>
       </body>
