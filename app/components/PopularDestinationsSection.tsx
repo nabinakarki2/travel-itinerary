@@ -6,48 +6,39 @@ const destinations = [
   {
     name: "Muktinath Temple",
     location: "Mustang",
-    image:
-      "https://images.unsplash.com/photo-1604537529428-15bcbeecfe4d?w=800&q=80",
+    image: "/images/muktinath.png",
     tag: "Religious",
   },
   {
     name: "Resunga Hill",
     location: "Gulmi",
-
-    image:
-      "https://images.unsplash.com/photo-1585409677983-0f6c41ca9c3b?w=800&q=80",
+    image: "/images/resunga.png",
     tag: "Trekking",
   },
   {
-    name: "Shiva Temple Palpa",
+    name: "Siddhababa Temple",
     location: "Palpa",
-
-    image:
-      "https://images.unsplash.com/photo-1566837945700-30057527ade0?w=800&q=80",
+    image: "/images/siddhababa.png",
     tag: "Religious",
   },
   {
     name: "Ghalegaun",
     location: "Lamjung",
 
-    image:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    image: "/images/ghalegaun.png",
     tag: "Village",
   },
   {
     name: "Chitwan National Park",
     location: "Chitwan",
-
-    image:
-      "https://images.unsplash.com/photo-1549366021-9f761c450615?w=800&q=80",
+    image: "/images/chitwan-np.png",
     tag: "Wildlife",
   },
   {
     name: "Phewa Lake",
     location: "Pokhara",
 
-    image:
-      "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
+    image: "/images/phewa-lake.png",
     tag: "Scenic",
   },
 ];
@@ -98,15 +89,6 @@ export default function PopularDestinationsSection() {
               </div>
             </Link>
           ))}
-        </div>
-
-        <div className="mt-10 text-center">
-          <Link
-            href="/planner"
-            className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-8 py-3 text-sm font-semibold text-primary transition hover:bg-primary/10"
-          >
-            Discover All Destinations
-          </Link>
         </div>
       </div>
     </section>

@@ -5,22 +5,19 @@ const trustItems = [
     title: "Chat Bot Recommendations",
     description:
       "Interact with our bot to discover and add domestic attractions starting from Butwal or your city.",
-    image:
-      "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80",
+    image: "/images/chat-bot-recommendations.png",
   },
   {
     title: "Local Guides",
     description:
       "Guides and community members can contribute new places so the database stays current.",
-    image:
-      "https://images.unsplash.com/photo-1601439678777-b2b3c7fa3a2e?w=800&q=80",
+    image: "/images/local-guides.png",
   },
   {
     title: "Optimized Path",
     description:
       "A mapped itinerary calculates the shortest route that covers all your chosen spots.",
-    image:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    image: "/images/optmized-path.png",
   },
   {
     title: "Complete Booking Flow",
@@ -46,18 +43,18 @@ export default function WhyChooseSection() {
             </p>
           </header>
           <div className="grid gap-4 sm:grid-cols-2">
-            {trustItems.map((item, idx) => (
+            {trustItems.map((item) => (
               <article
                 key={item.title}
                 className="relative flex h-full flex-col gap-4 rounded-2xl border border-primary/20 bg-white p-6"
               >
-                <div className="relative h-48 w-full overflow-hidden rounded-xl">
+                <div className="relative h-60 w-full overflow-hidden rounded-xl">
                   <Image
                     src={item.image}
                     alt={item.title}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, 50vw"
+                    className="w-full h-ful object-cover"
+                    width={400}
+                    height={300}
                   />
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">
