@@ -15,6 +15,9 @@ export async function addPlace(input: AddPlaceInput): Promise<PlaceActionResult>
   if (!session?.user?.id) {
     return { success: false, error: "You must be signed in." };
   }
+  if (session.user.role !== "builder") {
+    return { success: false, error: "Only builders can add places." };
+  }
 
   const parsed = placeSchema.safeParse(input);
   if (!parsed.success) {

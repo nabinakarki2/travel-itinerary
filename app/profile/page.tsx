@@ -14,7 +14,7 @@ export default async function ProfilePage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { name: true, email: true },
+    select: { name: true, email: true, role: true },
   });
 
   return (
@@ -29,7 +29,7 @@ export default async function ProfilePage() {
         imageUrl: p.imageUrl,
         createdAt: p.createdAt.toISOString(),
       }))}
-      user={{ name: user?.name ?? "", email: user?.email ?? "" }}
+      user={{ name: user?.name ?? "", email: user?.email ?? "", role: user?.role ?? "traveller" }}
     />
   );
 }

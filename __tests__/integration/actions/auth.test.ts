@@ -6,14 +6,18 @@ jest.mock("@/auth", () => ({
   handlers: {},
 }));
 
-jest.mock("@/lib/db", () => ({
-  __esModule: true,
-  default: {
-    user: {
-      findUnique: jest.fn(),
-      create: jest.fn(),
+jest.mock("@/lib/db", () => {
+  const mockFindUnique = jest.fn();
+  const mockCreate = jest.fn();
+  return {
+    __esModule: true,
+    default: {
+      user: {
+        findUnique: mockFindUnique,
+        create: mockCreate,
+      },
     },
-  },
+  };
 });
 
 jest.mock("bcryptjs", () => ({

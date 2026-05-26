@@ -11,6 +11,7 @@ type Props = {
 export default async function LocalGuidePage({ searchParams }: Props) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
+  if (session.user.role !== "builder") redirect("/planner");
 
   const params = await searchParams;
   let editPlace = null;

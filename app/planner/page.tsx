@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Clock3,
   Compass,
+  HardHat,
   Loader2,
   MapPin,
   Route,
@@ -27,6 +28,7 @@ import type { Components } from "react-markdown";
 import type { PlaceResult } from "@/actions/search";
 import { getPlacesByIds, PlaceDetail } from "@/actions/getPlacesByIds";
 import { useSelectedPlaces } from "@/app/context/SelectedPlacesContext";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -111,10 +113,13 @@ function PlannerPageClient() {
   );
 
   const { selectedPlaces, addPlace, removePlace } = useSelectedPlaces();
+  const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const bottomRef = useRef<HTMLDivElement>(null);
   const lastAutoSubmittedQueryRef = useRef<string>("");
+
+  const isBuilder = session?.user?.role === "builder";
 
   const hasStarted = messages.length > 0;
   const showRightPanel = sources.length > 0;
@@ -310,6 +315,15 @@ function PlannerPageClient() {
                   </p>
                 </div>
               </div>
+              {isBuilder && (
+                <Link
+                  href="/local-guide"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-primary/20 bg-primary/5 px-3 text-xs font-medium text-primary transition hover:bg-primary/10"
+                >
+                  <HardHat className="h-3.5 w-3.5" />
+                  Add Place
+                </Link>
+              )}
             </div>
           </div>
 

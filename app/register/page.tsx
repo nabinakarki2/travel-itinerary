@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
 import { registerUser } from "@/actions/auth";
-import { AlertCircle, Loader2, UserPlus } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { AlertCircle, Loader2, UserPlus, User, HardHat } from "lucide-react";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirm: z.string(),
+  role: z.enum(["builder", "traveller"]),
 }).refine((data) => data.password === data.confirm, {
   message: "Passwords do not match",
   path: ["confirm"],
@@ -20,6 +22,7 @@ const registerSchema = z.object({
 export default function RegisterPage() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
+  const [role, setRole] = useState<"builder" | "traveller">("traveller");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -31,7 +34,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
-    const parsed = registerSchema.safeParse(form);
+    const parsed = registerSchema.safeParse({ ...form, role });
     if (!parsed.success) {
       setError(parsed.error.issues[0].message);
       return;
@@ -42,10 +45,22 @@ export default function RegisterPage() {
       name: form.name,
       email: form.email,
       password: form.password,
+      role,
     });
 
     if (result.success) {
-      router.push("/login");
+      const signInResult = await signIn("credentials", {
+        email: form.email,
+        password: form.password,
+        redirect: false,
+      });
+
+      if (signInResult?.error) {
+        router.push("/login");
+      } else {
+        router.push("/planner");
+        router.refresh();
+      }
     } else {
       setError(result.error);
       setLoading(false);
@@ -61,7 +76,7 @@ export default function RegisterPage() {
           </div>
           <h1 className="text-2xl font-semibold text-slate-900">Create account</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Join as a local guide contributor
+            Choose your account type
           </p>
         </div>
 
@@ -72,11 +87,38 @@ export default function RegisterPage() {
           </div>
         )}
 
+        <div className="mb-6 grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setRole("traveller")}
+            className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-4 text-sm font-medium transition ${
+              role === "traveller"
+                ? "border-primary bg-primary/5 text-primary"
+                : "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300"
+            }`}
+          >
+            <User className="h-5 w-5" />
+            Traveller
+            <span className="text-[10px] font-normal text-slate-500">Chat & explore</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole("builder")}
+            className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-4 text-sm font-medium transition ${
+              role === "builder"
+                ? "border-primary bg-primary/5 text-primary"
+                : "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300"
+            }`}
+          >
+            <HardHat className="h-5 w-5" />
+            Builder
+            <span className="text-[10px] font-normal text-slate-500">Add places</span>
+          </button>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Name
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Name</label>
             <input
               required
               value={form.name}
@@ -86,9 +128,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Email
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Email</label>
             <input
               type="email"
               required
@@ -99,9 +139,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Password
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Password</label>
             <input
               type="password"
               required
@@ -112,9 +150,7 @@ export default function RegisterPage() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Confirm password
-            </label>
+            <label className="mb-1.5 block text-sm font-medium text-slate-700">Confirm password</label>
             <input
               type="password"
               required
@@ -132,17 +168,14 @@ export default function RegisterPage() {
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              "Create account"
+              `Create ${role} account`
             )}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-600">
           Already have an account?{" "}
-          <Link
-            href="/login"
-            className="font-medium text-primary hover:underline"
-          >
+          <Link href="/login" className="font-medium text-primary hover:underline">
             Sign in
           </Link>
         </p>
