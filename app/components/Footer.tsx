@@ -13,7 +13,7 @@ export default function Footer() {
       <div className="mx-auto max-w-300 px-4 md:px-6">
         <div className="relative grid gap-10 py-16 md:grid-cols-[2fr_1fr] md:py-20">
           <div>
-            <p className="mt-4 max-w-md text-2xl leading-snug text-gray-900 md:text-3xl md:leading-tight">
+            <p className="mt-4 max-w-md text-2xl font-medium text-gray-900 md:text-3xl">
               Nepal is not a place you visit.
               <br />
               <span className="text-primary">
