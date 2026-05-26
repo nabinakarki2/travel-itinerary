@@ -37,6 +37,6 @@ export async function getPlacesByIds(ids: number[]): Promise<PlaceDetail[]> {
   });
 
   // Return in the same order as the input IDs (Astra similarity rank order)
-  const map = new Map(places.map((p) => [p.id, p]));
+  const map = new Map(places.map((p: PlaceDetail) => [p.id, p]));
   return ids.map((id) => map.get(id)).filter(Boolean) as PlaceDetail[];
 }
