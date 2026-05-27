@@ -24,7 +24,7 @@ Travel Itinerary is designed to be a full-stack, end-to-end travel planning expe
 ![Travel Itinerary Cover](public/Travel%20Itinerary%20Cover.png)
 
 ---
-
+ 
 ## At a Glance
 
 - AI planner with streaming responses (token-by-token UX)
